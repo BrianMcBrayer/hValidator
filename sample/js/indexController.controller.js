@@ -13,7 +13,7 @@ function ($scope) {
         vm.errors = newVal;
     });
 
-    $scope.$watch('validator.state', function (newVal) {
+    $scope.$watch('validator.state()', function (newVal) {
         vm.state = newVal;
     });
     

@@ -67,7 +67,7 @@
             scope.validatorControl = {
                 validate: validate,
                 errors: [],
-                state: STATES.valid
+                state: function () { return scope.validatorControl.errors.length === 0 ? STATES.valid : STATES.invalid; }
             }
 
             init();
@@ -135,43 +135,41 @@
                 var results = {};
 
                 if (input != null) {
-                    if (angular.isElement(input) && !(input instanceof angular.element)) {
-                        input = angular.element(input);
-                    }
-
-                    results = validateSingleElement(input);
+                    validateSingleElement(input);
                 } else {
-                    var errors = [];
-
                     element.find(ELEMENTS).each(function (idx, curInput) {
-                        errors = errors.concat(
-                            validateSingleElement(angular.element(curInput))
-                            .validationErrors);
+                        validateSingleElement(curInput);
                     });
-
-                    results = new ValidationObject(errors);
                 }
-
-                scope.validatorControl.state = (results.validated ? STATES.valid : STATES.invalid);
-                scope.validatorControl.errors = results.validationErrors;
             }
 
             ////////////////
             // Private
             ////////////////
 
+            function removeInputsValidationErrors(input) {
+                scope.validatorControl.errors =
+                    scope.validatorControl.errors.filter(function (curError) {
+                        return curError.input !== input;
+                    });
+            }
+
             function validateSingleElement(input) {
                 var rules = scope.hOptions.rules,
                     validationErrors = [];
 
+                removeInputsValidationErrors(input);
+
                 if (rules) {
                     rules.forEach(function (curRule) {
-                        if (!checkRule(input, curRule)) {
+                        if (!checkRule(angular.element(input), curRule)) {
                             validationErrors
                                 .push(new ValidationError(input, curRule));
                         }
                     });
                 }
+
+                scope.validatorControl.errors = scope.validatorControl.errors.concat(validationErrors);
 
                 return new ValidationObject(validationErrors);
             }
@@ -186,24 +184,12 @@
 
             function ValidationError(input, rule) {
                 this.input = input;
-                this.message = rule.message(input);
+                this.message = rule.message(angular.element(input));
             }
 
             function ValidationObject(errors) {
                 this.validated = errors.length === 0;
                 this.validationErrors = errors;
-            }
-
-            function removeAnyErrorOfInputAndRule(input, rule) {
-
-            }
-
-            function addErrorOfInputAndRule(input, rule) {
-                validatorControl.errors.push(
-                    {
-                        input: input,
-                        message: rule.message(input)
-                    });
             }
 
         }
