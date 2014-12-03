@@ -3,6 +3,6 @@ validangular
 
 An angular form validator.
 
-*Features*
+_Features_
 
 *Validates standard HTML5 form elements in an intuitive way
