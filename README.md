@@ -1,4 +1,4 @@
-nValidator}
+nValidator
 ============
 
 An angular form validator.
