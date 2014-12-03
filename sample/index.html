@@ -16,18 +16,26 @@
 </head>
 <body ng-controller="indexController as vm">
     <div h-validator="validator">
-        <label for="firstName">First Name:</label>
-        <input type="text" id="firstName" name="firstName" required />
+        <div ng-repeat="curInput in vm.formElements">
+            <label for="{{curInput.UID}}">Input {{curInput.UID}}: </label>
+            <input type="text" id="{{curInput.UID}}" name="{{curInput.UID}}" required />
+        </div>        
+        <button ng-click="vm.addElement()">Add Form Element</button>
         <button ng-click="vm.testValidation()">Validate</button>
+    </div>
+
+    <div>
+        <h2>Validation Results:</h2>
         <h3 ng-if="vm.state === 'valid'">Valid!</h3>
         <div ng-if="vm.state === 'invalid'">
-            <h3>Errors</h3>
-
+            <h3>Invalid!</h3>
+            <h4>Errors:</h4>
             <div ng-repeat="curError in vm.errors">
                 <div>Control: {{curError.input}}</div>
                 <div>Message: {{curError.message}}</div>
             </div>
         </div>
     </div>
+    
 </body>
 </html>

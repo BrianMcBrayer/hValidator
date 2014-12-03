@@ -6,12 +6,14 @@ function ($scope) {
     var vm = this;
 
     vm.testValidation = testValidation;
+    vm.formElements = [];
+    vm.addElement = addFormElement;
     
     $scope.$watchCollection('validator.errors', function (newVal) {        
         vm.errors = newVal;
     });
 
-    $scope.$watchCollection('validator.state', function (newVal) {
+    $scope.$watch('validator.state', function (newVal) {
         vm.state = newVal;
     });
     
@@ -22,6 +24,12 @@ function ($scope) {
 
     function testValidation() {
         console.dir($scope.validator.validate());
+    }
+
+    function addFormElement() {
+        vm.formElements.push({
+            UID: 'id' + Math.floor(Math.random() * 10000000).toString()
+        })
     }
 
 

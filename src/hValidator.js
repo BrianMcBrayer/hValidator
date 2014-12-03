@@ -122,7 +122,9 @@
             ////////////////
 
             function onAutoValidateEvent(evt) {
-                validate(angular.element(evt.currentTarget));
+                scope.$apply(function () {
+                    validate(evt.currentTarget);
+                });                
             }
 
             ////////////////
@@ -131,15 +133,32 @@
 
             function validate(input) {
                 if (input != null) {
-                    var c = validateSingleElement(input);
+                    if (angular.isElement(input) && !(input instanceof angular.element)) {
+                        input = angular.element(input);
+                    }
+
+                    var results = validateSingleElement(input);
+
+                    scope.validatorControl.state = (results.validated ? STATES.valid : STATES.invalid);
+                    scope.validatorControl.errors = results.validationErrors;
                 } else {
-                    // Validate all the things
+                    var errors = [],
+                        validated = true;
+
+                    element.find(ELEMENTS).each(function (idx, curInput) {
+                        var inputValidation = validateSingleElement(angular.element(curInput));
+
+                        errors = errors.concat(inputValidation.validationErrors);
+
+                        if (validated !== false) {
+                            validated = inputValidation.validated;
+                        }                        
+                    });
+
+                    scope.validatorControl.state = (validated ? STATES.valid : STATES.invalid);
+                    scope.validatorControl.errors = errors;
                 }
 
-                scope.$apply(function () {
-                    scope.validatorControl.state = (c.validated ? STATES.valid : STATES.invalid);
-                    scope.validatorControl.errors = c.validationErrors;
-                });
             }
 
             ////////////////
