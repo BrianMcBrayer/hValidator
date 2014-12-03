@@ -2,7 +2,7 @@
 
 var company = 'heroicVentures',
     module = 'validation',
-    directive = 'nValidator';
+    directive = 'hValidator';
 
 angular.module(company + '.' + module, [])
 .directive(directive,
