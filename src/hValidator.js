@@ -20,7 +20,7 @@ function () {
     };
 
     function link(scope, element, attrs) {
-
+        element.innerHTML('This is a test');
     }
 
     return directive;
