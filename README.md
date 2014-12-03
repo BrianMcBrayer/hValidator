@@ -1,7 +1,7 @@
 hValidator
 ============
 
-An angular form validator.
+An Angular form validator for folks who have to use non-Angular forms.
 
 <h2>Features</h2>
 
