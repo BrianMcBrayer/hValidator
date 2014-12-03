@@ -17,10 +17,12 @@
 <body ng-controller="indexController as vm">
     <div h-validator="validator">
         <label for="firstName">First Name:</label>
-        <input type="text" id="firstName" name="firstName" required="required" />
+        <input type="text" id="firstName" name="firstName" required />
         <button ng-click="vm.testValidation()">Validate</button>
-        <div>
+        <h3 ng-if="vm.state === 'valid'">Valid!</h3>
+        <div ng-if="vm.state === 'invalid'">
             <h3>Errors</h3>
+
             <div ng-repeat="curError in vm.errors">
                 <div>Control: {{curError.input}}</div>
                 <div>Message: {{curError.message}}</div>

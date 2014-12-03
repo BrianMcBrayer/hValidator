@@ -7,6 +7,13 @@ function ($scope) {
 
     vm.testValidation = testValidation;
     
+    $scope.$watchCollection('validator.errors', function (newVal) {        
+        vm.errors = newVal;
+    });
+
+    $scope.$watchCollection('validator.state', function (newVal) {
+        vm.state = newVal;
+    });
     
 
     ////////////

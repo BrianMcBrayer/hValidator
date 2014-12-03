@@ -21,6 +21,11 @@
 
         var ELEMENTS = ['input', 'textarea', 'select'].join(',');
 
+        var STATES = Object.freeze({
+            valid: 'valid',
+            invalid: 'invalid'
+        });
+
         var DEFAULT_VALIDATION = Object.freeze({
             rules: [
                 {
@@ -59,10 +64,11 @@
 
         function link(scope, element, attrs) {
 
-            var validatorControl = {
+            scope.validatorControl = {
                 validate: validate,
-                errors: []
-            }            
+                errors: [],
+                state: STATES.valid
+            }
 
             init();
 
@@ -72,7 +78,7 @@
 
             function init() {
                 if (scope.hControl.length !== 0) {
-                    scope.$parent[scope.hControl] = validatorControl;
+                    scope.$parent[scope.hControl] = scope.validatorControl;
                 }
 
                 wireupWatchers();
@@ -125,10 +131,15 @@
 
             function validate(input) {
                 if (input != null) {
-                    validateSingleElement(input);
+                    var c = validateSingleElement(input);
                 } else {
                     // Validate all the things
                 }
+
+                scope.$apply(function () {
+                    scope.validatorControl.state = (c.validated ? STATES.valid : STATES.invalid);
+                    scope.validatorControl.errors = c.validationErrors;
+                });
             }
 
             ////////////////
@@ -137,32 +148,34 @@
 
             function validateSingleElement(input) {
                 var rules = scope.hOptions.rules,
-                    hasErrors = false;
+                    validationErrors = [];
 
                 if (rules) {
                     rules.forEach(function (curRule) {
-                        // TODO rewrite to make this function return an array of failing rules... do logic off of that
-                        hasErrors = updateValidationErrorForInputAndRule(input, curRule) || hasErrors;
+                        if (!checkRule(input, curRule)) {
+                            validationErrors
+                                .push(new ValidationError(input, curRule));
+                        }
                     });
                 }
 
-                return hasErrors;
+                return {
+                    validated: validationErrors.length === 0,
+                    validationErrors: validationErrors
+                };
             }
 
-            function updateValidationErrorForInputAndRule(input, rule) {
-                var validateFn = rule.validateFn,
-                    errorUpdated = false;
+            function checkRule(input, rule) {
+                var validateFn = rule.validateFn;
 
                 if (typeof validateFn === 'function') {
-                    if (validateFn(input)) {
-                        errorUpdated = removeAnyErrorOfInputAndRule(input, rule);
-                    } else {
-                        errorUpdated = true;
-                        addErrorOfInputAndRule(input, rule);
-                    }
+                    return validateFn(input);
                 }
+            }
 
-                return errorUpdated;
+            function ValidationError(input, rule) {
+                this.input = input;
+                this.message = rule.message(input);
             }
 
             function removeAnyErrorOfInputAndRule(input, rule) {
