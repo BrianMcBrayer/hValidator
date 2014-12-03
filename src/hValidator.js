@@ -124,7 +124,7 @@
             function onAutoValidateEvent(evt) {
                 scope.$apply(function () {
                     validate(evt.currentTarget);
-                });                
+                });
             }
 
             ////////////////
@@ -132,33 +132,28 @@
             ////////////////
 
             function validate(input) {
+                var results = {};
+
                 if (input != null) {
                     if (angular.isElement(input) && !(input instanceof angular.element)) {
                         input = angular.element(input);
                     }
 
-                    var results = validateSingleElement(input);
-
-                    scope.validatorControl.state = (results.validated ? STATES.valid : STATES.invalid);
-                    scope.validatorControl.errors = results.validationErrors;
+                    results = validateSingleElement(input);
                 } else {
-                    var errors = [],
-                        validated = true;
+                    var errors = [];
 
                     element.find(ELEMENTS).each(function (idx, curInput) {
-                        var inputValidation = validateSingleElement(angular.element(curInput));
-
-                        errors = errors.concat(inputValidation.validationErrors);
-
-                        if (validated !== false) {
-                            validated = inputValidation.validated;
-                        }                        
+                        errors = errors.concat(
+                            validateSingleElement(angular.element(curInput))
+                            .validationErrors);
                     });
 
-                    scope.validatorControl.state = (validated ? STATES.valid : STATES.invalid);
-                    scope.validatorControl.errors = errors;
+                    results = new ValidationObject(errors);
                 }
 
+                scope.validatorControl.state = (results.validated ? STATES.valid : STATES.invalid);
+                scope.validatorControl.errors = results.validationErrors;
             }
 
             ////////////////
@@ -178,10 +173,7 @@
                     });
                 }
 
-                return {
-                    validated: validationErrors.length === 0,
-                    validationErrors: validationErrors
-                };
+                return new ValidationObject(validationErrors);
             }
 
             function checkRule(input, rule) {
@@ -195,6 +187,11 @@
             function ValidationError(input, rule) {
                 this.input = input;
                 this.message = rule.message(input);
+            }
+
+            function ValidationObject(errors) {
+                this.validated = errors.length === 0;
+                this.validationErrors = errors;
             }
 
             function removeAnyErrorOfInputAndRule(input, rule) {
