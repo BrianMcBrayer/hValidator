@@ -10,6 +10,13 @@ angular.module(company + '.' + module, [])
 function () {
     
     ////////////
+    // Consts
+    ////////////
+
+    var EVENTS = 'blur',
+        ELEMENTS = 'input textarea select';
+
+    ////////////
     // Directive
     ////////////
 
@@ -20,7 +27,13 @@ function () {
     };
 
     function link(scope, element, attrs) {
-        element.innerHTML('This is a test');
+        
+        element.on(EVENTS, ELEMENTS, onAutoValidateEvent);
+
+    }
+
+    function onAutoValidateEvent(element) {
+        console.dir(element);
     }
 
     return directive;
