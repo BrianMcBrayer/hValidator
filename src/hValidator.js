@@ -1,42 +1,89 @@
 ﻿(function () {
 
-var company = 'heroicVentures',
-    module = 'validation',
-    directive = 'hValidator';
+    var COMPANY = 'heroicVentures',
+        MODULE = '.validation',
+        DIRECTIVE = 'hValidator';
 
-angular.module(company + '.' + module, [])
-.directive(directive,
-            [
-function () {
-    
-    ////////////
-    // Consts
-    ////////////
+    angular.module(COMPANY + MODULE, [])
+    .directive(DIRECTIVE,
+             [
+    function () {
 
-    var EVENTS = 'blur',
-        ELEMENTS = 'input textarea select';
+        ////////////
+        // Consts
+        ////////////
 
-    ////////////
-    // Directive
-    ////////////
+        var EVENT_OPTIONS = Object.freeze({
+            DEFAULT_EVENT: 'blur',
+            MANUAL_EVENT: 'manual',
+            NAMESPACE: '.' + DIRECTIVE
+        });
 
-    var directive = {
-        restrict: 'AE',
-        link: link,
-        scope: {}
-    };
+        var ELEMENTS = Object.freeze(['input', 'textarea', 'select']);
 
-    function link(scope, element, attrs) {
-        
-        element.on(EVENTS, ELEMENTS, onAutoValidateEvent);
+        ////////////
+        // Directive
+        ////////////
 
-    }
+        var directive = {
+            restrict: 'AE',
+            link: link,
+            scope: {
+                hValidateOn: '=?',
+                hOptions: '=?',
+                hControl: '@' + DIRECTIVE
+            }
+        };
 
-    function onAutoValidateEvent(element) {
-        console.dir(element);
-    }
+        function link(scope, element, attrs) {
 
-    return directive;
-}]);
+            if (scope.hControl.length !== 0) {
+                scope.$parent[hControl] = this;
+            }
+            
+            scope.$watch('hValidateOn', watchHValidateOn);
+            scope.$watch('hOptions', watchHOptions);            
+
+            /////////////////
+            // Functions
+            /////////////////
+
+            /////////////////
+            // Scope Watchers
+            /////////////////
+
+            function watchHValidateOn(newVal) {
+                if (newVal == null) {
+                    scope.hValidateOn = EVENT_OPTIONS.DEFAULT_EVENT;
+                } else {
+
+                    // Remove previous bindings, if any
+                    element.off(EVENT_OPTIONS.NAMESPACE);
+
+                    // Wire up auto-validation if anything other than manual validation is asked for
+                    if (newVal !== EVENT_OPTIONS.MANUAL_EVENT) {
+                        element.on(
+                            scope.hValidateOn + EVENT_OPTIONS.NAMESPACE,
+                            ELEMENTS.join(','),
+                            onAutoValidateEvent);
+                    }
+                }
+            }
+
+            function watchHOptions(newVal, oldVal) {
+
+            }
+
+            ////////////////
+            // Events
+            ////////////////
+
+            function onAutoValidateEvent(element, options) {
+                console.dir(element);
+            }
+        }
+
+        return directive;
+    }]);
 
 })()

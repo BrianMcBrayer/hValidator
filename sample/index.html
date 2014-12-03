@@ -3,13 +3,18 @@
 <head>
     <title>hValidator Sample Page</title>
 
+    <!-- Libraries -->
+    <script src="../scripts/jquery-2.1.1.js"></script>
     <script src="../scripts/angular.js"></script>
 
+    <!-- Directive -->
     <script src="../src/hValidator.js"></script>
+
+    <!-- App -->
     <script src="js/app.js"></script>
 </head>
-<body>
-    <div h-validator>
+<body ng-controller="indexController as vm">
+    <div h-validator="validator">
         <label for="firstName">First Name:</label>
         <input type="text" id="firstName" name="firstName" />
     </div>
