@@ -170,8 +170,6 @@
                 }
 
                 scope.validatorControl.errors = scope.validatorControl.errors.concat(validationErrors);
-
-                return new ValidationObject(validationErrors);
             }
 
             function checkRule(input, rule) {
@@ -186,12 +184,6 @@
                 this.input = input;
                 this.message = rule.message(angular.element(input));
             }
-
-            function ValidationObject(errors) {
-                this.validated = errors.length === 0;
-                this.validationErrors = errors;
-            }
-
         }
 
         return directive;
