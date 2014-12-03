@@ -9,6 +9,21 @@ angular.module(company + '.' + module, [])
             [
 function () {
     
+    ////////////
+    // Directive
+    ////////////
+
+    var directive = {
+        restrict: 'AE',
+        link: link,
+        scope: {}
+    };
+
+    function link(scope, element, attrs) {
+
+    }
+
+    return directive;
 }]);
 
 })()
