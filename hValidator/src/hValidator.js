@@ -16,7 +16,7 @@
 
         var NOVALIDATE = 'novalidate',
             FORM = 'form',
-            DEFAULT_MESSAGE_TEMPLATE = '<span id="{ID}" class="h-invalid-msg">{MSG}</span>';
+            DEFAULT_MESSAGE_TEMPLATE = '<span class="h-invalid-msg">{MSG}</span>';
 
         var TEMPLATE_MESSAGE_REPLACE = /\{MSG\}/;            
 
