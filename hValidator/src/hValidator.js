@@ -8,15 +8,17 @@
     .directive(DIRECTIVE,
              [
     function () {
+        'use strict';
 
         ////////////
         // Consts
         ////////////
 
         var NOVALIDATE = 'novalidate',
-            FORM = 'form';
+            FORM = 'form',
+            DEFAULT_MESSAGE_TEMPLATE = '<span id="{ID}" class="h-invalid-msg">{MSG}</span>';
 
-        var TEMPLATE_REPLACE = /\{MSG\}/;
+        var TEMPLATE_MESSAGE_REPLACE = /\{MSG\}/;            
 
         var VALIDITY_STATES = Object.freeze({
             VALID: 'h-valid',
@@ -44,7 +46,7 @@
             invalid: 'invalid'
         });
 
-        var DEFAULT_VALIDATION = Object.freeze({
+        var DEFAULT_OPTIONS = Object.freeze({
             rules: [
                 {
                     name: 'required',
@@ -63,7 +65,8 @@
                         return (input.attr('name') || 'Control') + ' is required';
                     }
                 }
-            ]
+            ],
+            errorMessageTemplate: DEFAULT_MESSAGE_TEMPLATE
         });
 
         ////////////
@@ -83,10 +86,6 @@
         function link(scope, element, attrs) {
 
             var _findElementsMap;
-
-            var _errorMessageElements;
-
-            var _errorMessageTemplate = angular.element('<span class="h-invalid-msg">{MSG}</span>');
 
             scope.validatorControl = {
                 validate: validate,
@@ -114,7 +113,7 @@
 
             function wireupWatchers() {
                 scope.$watch('hElementEvents', watchHElementEvents);
-                scope.$watch('hOptions', watchHOptions);
+                scope.$watchCollection('hOptions', watchHOptions);
             }
 
             /////////////////
@@ -160,8 +159,15 @@
 
             function watchHOptions(newVal, oldVal) {
                 if (newVal == null) {
-                    scope.hOptions = angular.extend({}, DEFAULT_VALIDATION);
+                    scope.hAllOptions = angular.extend({}, DEFAULT_OPTIONS);
+                } else {
+                    scope.hAllOptions = angular.extend({}, DEFAULT_OPTIONS, scope.hOptions);
                 }
+
+                scope.hAllOptions.errorMessageTemplate =
+                    (scope.hOptions && scope.hOptions.errorMessageTemplate ?
+                        angular.element(scope.hOptions.errorMessageTemplate) :
+                        angular.element(scope.hAllOptions.errorMessageTemplate));
             }
 
             ////////////////
@@ -208,7 +214,7 @@
             }
 
             function validateSingleElement(input) {
-                var rules = scope.hOptions.rules,
+                var rules = scope.hAllOptions.rules,
                     $input = (input instanceof angular.element ? input : angular.element(input)),
                     isValid = true;
 
@@ -243,13 +249,19 @@
             }
 
             function ValidationError(input, rule) {
+                var MESSAGE_ID = '_error-msg';
+
                 this.input = input;
                 this.message = rule.message(angular.element(input));
 
-                var $messageTemplate = _errorMessageTemplate.clone();
+                var $messageTemplate = scope.hAllOptions.errorMessageTemplate.clone(),
+                    parsedHtml = $messageTemplate.html().replace(TEMPLATE_MESSAGE_REPLACE, this.message),
+                    inputId = input.id;
+
                 $messageTemplate
-                    .html($messageTemplate.html().replace(TEMPLATE_REPLACE, this.message))
-                    .insertAfter(input);                
+                    .attr('id', (inputId ? inputId + MESSAGE_ID : null))
+                    .html(parsedHtml)
+                    .insertAfter(input);
 
                 this.$messageTemplate = $messageTemplate;
 
