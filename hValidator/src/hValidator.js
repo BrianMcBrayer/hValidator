@@ -16,6 +16,8 @@
         var NOVALIDATE = 'novalidate',
             FORM = 'form';
 
+        var TEMPLATE_REPLACE = /\{MSG\}/;
+
         var VALIDITY_STATES = Object.freeze({
             VALID: 'h-valid',
             INVALID: 'h-invalid'
@@ -81,6 +83,10 @@
         function link(scope, element, attrs) {
 
             var _findElementsMap;
+
+            var _errorMessageElements;
+
+            var _errorMessageTemplate = angular.element('<span class="h-invalid-msg">{MSG}</span>');
 
             scope.validatorControl = {
                 validate: validate,
@@ -191,7 +197,13 @@
             function removeInputsValidationErrors(input) {
                 scope.validatorControl.errors =
                     scope.validatorControl.errors.filter(function (curError) {
-                        return curError.input !== input;
+                        if (curError.input === input) {
+                            curError.destroy();
+
+                            return false;
+                        }
+
+                        return true;
                     });
             }
 
@@ -205,7 +217,9 @@
                 if (Array.isArray(rules)) {
                     isValid = rules.every(function (curRule) {
                         if (!checkRule($input, curRule)) {
-                            scope.validatorControl.errors.push(new ValidationError(input, curRule));
+                            var err = new ValidationError(input, curRule);
+
+                            scope.validatorControl.errors.push(err);
 
                             return false;
                         }
@@ -231,6 +245,22 @@
             function ValidationError(input, rule) {
                 this.input = input;
                 this.message = rule.message(angular.element(input));
+
+                var $messageTemplate = _errorMessageTemplate.clone();
+                $messageTemplate
+                    .html($messageTemplate.html().replace(TEMPLATE_REPLACE, this.message))
+                    .insertAfter(input);                
+
+                this.$messageTemplate = $messageTemplate;
+
+                this.relatedElements = (Array.isArray(rule.relatedElements) ? rule.relatedElements : []);
+
+                this.destroy = function () {
+                    this.$messageTemplate.remove();
+                    this.$messageTemplate = null;
+
+                    this.input = null;
+                }
             }
         }
 
