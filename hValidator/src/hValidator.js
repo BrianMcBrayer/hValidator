@@ -13,13 +13,29 @@
         // Consts
         ////////////
 
+        var NOVALIDATE = 'novalidate',
+            FORM = 'form';
+
+        var VALIDITY_STATES = Object.freeze({
+            VALID: 'h-valid',
+            INVALID: 'h-invalid'
+        });
+
         var EVENT_OPTIONS = Object.freeze({
-            DEFAULT_EVENT: 'blur',
             MANUAL_EVENT: 'manual',
             NAMESPACE: '.' + DIRECTIVE
         });
 
-        var ELEMENTS = ['input', 'textarea', 'select'].join(',');
+        var DEFAULT_ELEMENT_BEHAVIOUR = Object.freeze([
+            {
+                selector: ['input', 'textarea'],
+                event: 'blur'
+            },
+            {
+                selector: ['select'],
+                event: 'change'
+            }
+        ]);
 
         var STATES = Object.freeze({
             valid: 'valid',
@@ -56,13 +72,15 @@
             restrict: 'AE',
             link: link,
             scope: {
-                hValidateOn: '=?',
+                hElementEvents: '=?',
                 hOptions: '=?',
                 hControl: '@' + DIRECTIVE
             }
         };
 
         function link(scope, element, attrs) {
+
+            var _findElementsMap;
 
             scope.validatorControl = {
                 validate: validate,
@@ -77,6 +95,10 @@
             /////////////////
 
             function init() {
+                if (element.is(FORM)) {
+                    element.prop(NOVALIDATE, true);
+                }                    
+
                 if (scope.hControl.length !== 0) {
                     scope.$parent[scope.hControl] = scope.validatorControl;
                 }
@@ -85,7 +107,7 @@
             }
 
             function wireupWatchers() {
-                scope.$watch('hValidateOn', watchHValidateOn);
+                scope.$watch('hElementEvents', watchHElementEvents);
                 scope.$watch('hOptions', watchHOptions);
             }
 
@@ -93,20 +115,39 @@
             // Scope Watchers
             /////////////////
 
-            function watchHValidateOn(newVal) {
+            function watchHElementEvents(newVal) {
                 if (newVal == null) {
-                    scope.hValidateOn = EVENT_OPTIONS.DEFAULT_EVENT;
+                    scope.hElementEvents = DEFAULT_ELEMENT_BEHAVIOUR;
                 } else {
 
                     // Remove previous bindings, if any
                     element.off(EVENT_OPTIONS.NAMESPACE);
 
                     // Wire up auto-validation if anything other than manual validation is asked for
-                    if (newVal !== EVENT_OPTIONS.MANUAL_EVENT) {
-                        element.on(
-                            scope.hValidateOn + EVENT_OPTIONS.NAMESPACE,
-                            ELEMENTS,
-                            onAutoValidateEvent);
+                    if (newVal !== EVENT_OPTIONS.MANUAL_EVENT && Array.isArray(newVal)) {
+                        _findElementsMap = newVal.map(function (curElmOpt) {
+                            if (curElmOpt.selector) {
+                                return curElmOpt.selector;
+                            } else {
+                                throw new Error('h-element-events must be \'manual\' or an array of { element: [selectors], event: eventname. However, it appears to be malformed.');
+                            }
+                        })
+                        .join(',');
+
+                        newVal.forEach(function (curElmOpt) {
+                            if (curElmOpt.selector && curElmOpt.event) {
+                                if (!Array.isArray(curElmOpt.selector)) {
+                                    curElmOpt.selector = [curElmOpt.selector];
+                                }
+
+                                element.on(
+                                    curElmOpt.event + '.' + EVENT_OPTIONS.NAMESPACE,
+                                    curElmOpt.selector.join(','),
+                                    onAutoValidateEvent);
+                            } else {
+                                throw new Error('h-element-events must be \'manual\' or an array of { element: [selectors], event: eventnames)');
+                            }
+                        });
                     }
                 }
             }
@@ -137,7 +178,7 @@
                 if (input != null) {
                     validateSingleElement(input);
                 } else {
-                    element.find(ELEMENTS).each(function (idx, curInput) {
+                    element.find(_findElementsMap).each(function (idx, curInput) {
                         validateSingleElement(curInput);
                     });
                 }

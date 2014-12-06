@@ -18,7 +18,14 @@
     <div h-validator="validator">
         <div ng-repeat="curInput in vm.formElements">
             <label for="{{curInput.UID}}">Input {{curInput.UID}}: </label>
-            <input type="text" id="{{curInput.UID}}" name="{{curInput.UID}}" required />
+            <input type="text" id="{{curInput.UID}}" name="{{curInput.UID}}" required ng-if="curInput.elmType === 1" />
+            <textarea id="{{curInput.UID}}" name="{{curInput.UID}}" required ng-if="curInput.elmType === 2"></textarea>
+            <select id="{{curInput.UID}}" name="{{curInput.UID}}" required ng-if="curInput.elmType === 3">
+                <option value="">Please select an option</option>
+                <option>Option 2</option>
+                <option>Option 3</option>
+            </select>
+
         </div>        
         <button ng-click="vm.addElement()">Add Form Element</button>
         <button ng-click="vm.testValidation()">Validate</button>

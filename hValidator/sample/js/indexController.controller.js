@@ -7,8 +7,8 @@ function ($scope) {
 
     vm.testValidation = testValidation;
     vm.formElements = [];
-    vm.addElement = addFormElement;
-    
+    vm.addElement = addFormElement;    
+
     $scope.$watchCollection('validator.errors', function (newVal) {        
         vm.errors = newVal;
     });
@@ -28,7 +28,8 @@ function ($scope) {
 
     function addFormElement() {
         vm.formElements.push({
-            UID: 'id' + Math.floor(Math.random() * 10000000).toString()
+            UID: 'id' + Math.floor(Math.random() * 10000000).toString(),
+            elmType: Math.floor(Math.random() * 3) + 1
         })
     }
 
