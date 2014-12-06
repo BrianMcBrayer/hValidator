@@ -97,7 +97,7 @@
             function init() {
                 if (element.is(FORM)) {
                     element.prop(NOVALIDATE, true);
-                }                    
+                }
 
                 if (scope.hControl.length !== 0) {
                     scope.$parent[scope.hControl] = scope.validatorControl;
@@ -197,20 +197,27 @@
 
             function validateSingleElement(input) {
                 var rules = scope.hOptions.rules,
-                    validationErrors = [];
+                    $input = (input instanceof angular.element ? input : angular.element(input)),
+                    isValid = true;
 
                 removeInputsValidationErrors(input);
 
-                if (rules) {
-                    rules.forEach(function (curRule) {
-                        if (!checkRule(angular.element(input), curRule)) {
-                            validationErrors
-                                .push(new ValidationError(input, curRule));
+                if (Array.isArray(rules)) {
+                    isValid = rules.every(function (curRule) {
+                        if (!checkRule($input, curRule)) {
+                            scope.validatorControl.errors.push(new ValidationError(input, curRule));
+
+                            return false;
                         }
+
+                        return true;
                     });
                 }
 
-                scope.validatorControl.errors = scope.validatorControl.errors.concat(validationErrors);
+                $input.toggleClass(VALIDITY_STATES.VALID, isValid);
+                $input.toggleClass(VALIDITY_STATES.INVALID, !isValid);
+
+                return isValid;
             }
 
             function checkRule(input, rule) {
