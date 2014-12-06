@@ -16,39 +16,28 @@ An Angular form validator for folks who have to use non-Angular forms. Initially
 
 So this project is still pretty new. It's almost full-featured on the HTML5 side. The kendo side will be my next major area of emphasis. See the status below.
 
-<ul>
-    <li>Live binding to all form controls
-        <ul>
-            <li>[x] input</li>
-            <li>[x] textarea</li>
-            <li>[x] select</li>
-            <li>[x] no-validate on forms</li>
-            <li>[] kendo ui controls</li>
-        </ul>
-    </li>
-    <li>[x] Custom rules that are to be applied</li>
-	<li>Default rules that can be overridden
-	    <ul>
-		    <li>[x] required</li>
-		    <li>[x] min</li>
-		    <li>[x] max</li>
-		</ul>
-	</li>
-	<li>Rules that validate a control will form an invalid message doing some/all of the following:
-	    <ul>
-		    <li>[x] Applying/removing a class to the element</li>
-		    <li>[x] Showing/hiding an error message</li>
-		        <li>[x] Showing/hiding an error message with an id</li>
-			    <li>[] Showing/hiding an error message in a custom place</li>
-		    <li>[x] Compiling a list of validation errors</li>
-		    <li>[x] Linking validation errors to the controls that threw them</li>
-		    <li>[x] Linking validation errors to related controls</li>
-		</ul>
-	</li>
-	<li>[x] Intuitive cleanup of events on controls</li>
-	<li>[x] Intuitive wireup of events on controls</li>
-	<li>[x] Validate automatically on blur, change, and/or validate manually</li>
-</ul>
+- [ ] Live binding to all form controls
+ - [x] input
+ - [x] textarea
+ - [x] select
+ - [x] no-validate on forms
+ - [ ] kendo ui controls
+- [x] Custom rules that are to be applied
+ - [x] Default rules that can be overridden
+ - [x] required
+ - [ ] min
+ - [ ] max
+- [x] Rules that validate a control will form an invalid message doing some/all of the following:
+ - [x] Applying/removing a class to the element
+ - [x] Showing/hiding an error message
+ - [x] Showing/hiding an error message with an id
+  - [ ] Showing/hiding an error message in a custom place
+ - [x] Compiling a list of validation errors
+ - [x] Linking validation errors to the controls that threw them
+ - [x] Linking validation errors to related controls
+- [x] Intuitive cleanup of events on controls
+- [x] Intuitive wireup of events on controls
+ - [x] Validate automatically on blur, change, and/or validate manually
 
 <h2>But Kendo UI already has a validator!</h2>
 
